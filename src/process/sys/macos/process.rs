@@ -32,7 +32,13 @@ fn catch_zombie(proc_err: ProcessError) -> ProcessError {
 				return match Status::try_from(kinfo_proc.kp_proc.p_stat) {
 					Ok(Status::Zombie) => ProcessError::ZombieProcess { pid },
 					Ok(_) => ProcessError::AccessDenied { pid },
-					Err(e) => psutil_error_to_process_error(e.into(), pid),
+					Err(e) => psutil_error_to_process_error(
+						Error::ParseStatus {
+							source: e,
+							proc_info: None,
+						},
+						pid,
+					),
 				};
 			}
 		}

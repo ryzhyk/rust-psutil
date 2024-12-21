@@ -45,8 +45,11 @@ pub enum Error {
 	},
 
 	/// Linux and macOS.
-	#[error("Failed to parse status. {}", source)]
-	ParseStatus { source: ParseStatusError },
+	#[error("Failed to parse status. {}.{}", source, if let Some(proc_info) = &proc_info { format!(" Process info: {proc_info}") } else { String::new() })]
+	ParseStatus {
+		source: ParseStatusError,
+		proc_info: Option<String>,
+	},
 
 	// Unix only.
 	#[error("nix error: {}", source)]
@@ -69,11 +72,14 @@ impl From<io::Error> for Error {
 	}
 }
 
-impl From<ParseStatusError> for Error {
-	fn from(error: ParseStatusError) -> Self {
-		Error::ParseStatus { source: error }
-	}
-}
+// impl From<ParseStatusError> for Error {
+// 	fn from(error: ParseStatusError) -> Self {
+// 		Error::ParseStatus {
+// 			source: error,
+// 			proc_info: None,
+// 		}
+// 	}
+// }
 
 pub(crate) fn read_file<P>(path: P) -> Result<String>
 where

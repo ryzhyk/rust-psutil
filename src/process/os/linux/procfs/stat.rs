@@ -214,7 +214,10 @@ impl FromStr for ProcfsStat {
 
 		let pid = parse_u32(fields[0])?;
 		let comm = fields[1].to_string();
-		let state = Status::from_str(fields[2])?;
+		let state = Status::from_str(fields[2]).map_err(|e| Error::ParseStatus {
+			source: e,
+			proc_info: Some(contents.to_string()),
+		})?;
 
 		let ppid = parse_u32(fields[3])?;
 		let ppid = if ppid == 0 { None } else { Some(ppid) };
